@@ -1,0 +1,37 @@
+{{-- resources/views/projects/preview.blade.php --}}
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <h1>Resources for Project {{ $projectId }}</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Namespace</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Replica Count</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($resources as $resource)
+                    <tr>
+                        <td>{{ $resource->id }}</td>
+                        <td>{{ $resource->name }}</td>
+                        <td>{{ $resource->namespace }}</td>
+                        <td>{{ $resource->type }}</td>
+                        <td>{{ $resource->status }}</td>
+                        <td>{{ $resource->replica_count }}</td>
+                        <td>
+                            {{-- Add any action buttons or links here --}}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endsection
+
