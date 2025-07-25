@@ -20,7 +20,7 @@ class CRUDProjectsController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;    
 
     public function setup()
@@ -31,25 +31,35 @@ class CRUDProjectsController extends CrudController
         // $this->crud->paginate(50);
     }
 
+    // List all Projects data
     protected function setupListOperation()
     {
         CRUD::setListView('vendor.backpack.crud.list_details_pro');
         CRUD::setFromDb(); // set columns from db columns.
+
         $this->crud->addColumns([
             [
-                'type' => 'activity',
-                'name' => 'activity',
-                'label' => 'scheduled sleep'
+                'type' => 'fixed_sleep',
+                'name' => 'fixed_sleep',
+                'label' => 'Fixed Sleep'
+            ]
+        ]);
+        $this->crud->addColumns([
+            [
+                'type' => 'duration_sleep',
+                'name' => 'duration_sleep',
+                'label' => 'Duration Sleep'
             ]
         ]);
 
         $this->crud->addButtonFromModelFunction('line', 'preview', 'previewButton', 'end');
         CRUD::addButtonFromView('top', 'refreshAll', 'refreshAllSwal', 'end');
-        CRUD::addButtonFromView('line', 'sleep_now', 'sleepProSwal', 'end');
         CRUD::addButtonFromView('line', 'activate_now', 'activateProSwal', 'end');
-        CRUD::addButtonFromView('line', 'refresh_now', 'refreshProSwal', 'end');
+        CRUD::addButtonFromView('line', 'sleep_now', 'sleepProSwal', 'end');
         CRUD::addButtonFromView('line', 'exclude', 'excludeProSwal', 'end');
-        CRUD::column('isActive')->remove();
+        CRUD::addButtonFromView('line', 'refresh_now', 'refreshProSwal', 'end');
+        CRUD::column('isFixed')->remove();
+        CRUD::column('isDuration')->remove();
         CRUD::orderBy('name', 'asc');
         // CRUD::enableDetailsRow();
     }
@@ -60,13 +70,15 @@ class CRUDProjectsController extends CrudController
      * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
+
+    // Define what can be updated
     protected function setupCreateOperation()
     {
         CRUD::setValidation(ProjectsRequest::class);
         CRUD::setFromDb(); // set fields from db columns.
-        CRUD::field('isActive')->remove();
+        CRUD::field('isFixed')->remove();
+        CRUD::field('isDuration')->remove();
         CRUD::field('name')->remove();
-        // CRUD::field('description')->remove();
     }
 
     /**
@@ -88,25 +100,49 @@ class CRUDProjectsController extends CrudController
         $this->setupCreateOperation();
     }
 
-    protected function active(Request $request)
+    // Switch toggle for duration sleep
+    protected function switchDurationSleep(Request $request)
     {
-        Projects::where('id', $request->id)->update(['isActive' => $request->status]);
+        Projects::where('id', $request->id)->update(['isDuration' => $request->status]);
         $projectName = Projects::where('id', $request->id)->first()->name;
 
         if ($request->status == 0) {
             return response()->json([
                 'success' => true,
-                'message' => "Project $projectName has become inactive, and cannot be automatically sleep!"
+                'message' => "Project $projectName has Duration-based Sleep Disabled."
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => "Project $projectName has become active, and will be automatically sleep!"
+                'message' => "Project $projectName has Duration-based Sleep Enabled."
             ]);
         }
     }
 
-    public function popupProject(Request $request)
+    // Switch toggle for fixed sleep
+    protected function switchFixedSleep(Request $request)
+    {
+        $sleepTime = env('FIXED_SLEEP_TIME', '23:00');
+        $activateTime = env('FIXED_ACTIVATE_TIME', '08:00');
+
+        Projects::where('id', $request->id)->update(['isFixed' => $request->status]);
+        $projectName = Projects::where('id', $request->id)->first()->name;
+
+        if ($request->status == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "Project $projectName has Fixed-time Sleep Disabled. ($sleepTime - $activateTime)"
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => "Project $projectName has Fixed-time Sleep Enabled. ($sleepTime - $activateTime)"
+            ]);
+        }
+    }
+
+    // popupProject function
+    public function popup(Request $request)
     {
         // Find the project by name
         $project = Projects::where('name', $request->name)->first();
@@ -146,6 +182,7 @@ class CRUDProjectsController extends CrudController
         return $resources;
     }
 
+    // manual sleep button
     public function sleep($name)
     {
         $projectID = Projects::where('name', $name)->first()?->id;
@@ -182,7 +219,7 @@ class CRUDProjectsController extends CrudController
         return $response;
     }
 
-
+    // manual activate button
     public function activate(Request $request)
     {
         $projectName = $request->name;
@@ -217,6 +254,7 @@ class CRUDProjectsController extends CrudController
         return $response;
     }
 
+    //exclude project
     public function exclude($name)
     {
         $projectID = Projects::where('name', $name)->first()?->id;
@@ -224,7 +262,8 @@ class CRUDProjectsController extends CrudController
         return "success";
     }
 
-    public function refresh($name)
+    // hard refresh project
+    public function hardRefresh($name)
     {
         $projectID = Projects::where('name', $name)->first()?->id;
         if (!$projectID) {
@@ -275,6 +314,7 @@ class CRUDProjectsController extends CrudController
         return "success";
     }
 
+    // refresh all resources from kubernetes into sleep-app
     public function refreshAll()
     {
         $response = Helper::refreshAll();

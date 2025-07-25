@@ -25,8 +25,8 @@ class CRUDSubserviceController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -71,11 +71,11 @@ class CRUDSubserviceController extends CrudController
         CRUD::addButtonFromView('top', 'excludeAll', 'excludeProfromSub', 'end');
         CRUD::addButtonFromView('top', 'refreshAll', 'refreshProfromSub', 'end');
 
-
+        CRUD::addButtonFromView('line', 'refresh_now', 'refreshSubSwal', 'beginning');
+        CRUD::addButtonFromView('line', 'exclude', 'excludeSubSwal', 'beginning');
         CRUD::addButtonFromView('line', 'sleep_now', 'sleepSubSwal', 'beginning');
         CRUD::addButtonFromView('line', 'activate_now', 'activateSubSwal', 'beginning');
-        CRUD::addButtonFromView('line', 'refresh_now', 'refreshSubSwal', 'beginning');
-        CRUD::addButtonFromView('line', 'exclude', 'excludeSubSwal', 'end');
+
         $project = \Route::current()->parameter('project');
         $id_project = Projects::where('name', $project)->first()?->id;
         $this->crud->addClause('where', 'projectID', $id_project);
@@ -96,12 +96,8 @@ class CRUDSubserviceController extends CrudController
         CRUD::setValidation(SubserviceRequest::class);
         CRUD::setFromDb(); // set fields from db columns.
         CRUD::field('projectID')->remove();
-        // CRUD::field('active_left')->remove();
-
-        /**
-         * Fields can be defined using the fluent syntax:
-         * - CRUD::field('price')->type('number');
-         */
+        CRUD::field('name')->remove();
+        CRUD::field('active_left')->remove();
     }
 
     public function search()
@@ -133,7 +129,6 @@ class CRUDSubserviceController extends CrudController
         $entries = $this->crud->getEntries();
 
         foreach ($entries as $entry) {
-            // dd($entry);
             if ($entry->active_left == -1) {
                 $entry->active_left = "Auto Sleep is Disabled";
             } else if ($entry->active_left == 0) {
@@ -193,6 +188,7 @@ class CRUDSubserviceController extends CrudController
         return $this->crud->performSaveAction($item->getKey());
     }
 
+    // manual sleep button
     public function sleep($name)
     {
         $subserviceID = Subservice::where('name', $name)->first()?->id;
@@ -210,6 +206,7 @@ class CRUDSubserviceController extends CrudController
         return "success";
     }
 
+    // manual activate button
     public function activate(Request $request)
     {
         $subserviceID = Subservice::where('name', $request->name)->first()?->id;
@@ -225,7 +222,8 @@ class CRUDSubserviceController extends CrudController
         return "success";
     }
 
-    public function popupSubservice(Request $request)
+    // show subservice popup
+    public function popup(Request $request)
     {
         $subservice = Subservice::where('name', $request->name)->first();
         $subserviceID = $subservice->id;
@@ -249,7 +247,8 @@ class CRUDSubserviceController extends CrudController
         return $resources->toArray();
     }
 
-    public function refresh($name)
+    // hard refresh subservice
+    public function hardRefresh($name)
     {
         $subserviceID = Subservice::where('name', $name)->first()?->id;
         $projectName = Subservice::where('id', $subserviceID)->first()?->project?->name;
@@ -258,6 +257,7 @@ class CRUDSubserviceController extends CrudController
         return "success";
     }
 
+    // exclude subservice
     public function exclude($name)
     {
         $subserviceID = Subservice::where('name', $name)->first()?->id;

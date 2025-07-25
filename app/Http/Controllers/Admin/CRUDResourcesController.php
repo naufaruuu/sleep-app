@@ -17,7 +17,7 @@ class CRUDResourcesController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     public function setup()
     {
@@ -100,8 +100,20 @@ class CRUDResourcesController extends CrudController
         // register any Model Events defined on fields
         $this->crud->registerFieldEvents();
 
+        // Only merge the subserviceID if the parameter exists
+        $idSubservice = \Route::current()->parameter('id_subservice');
+        if ($idSubservice) {
+            $request->merge(['subserviceID' => $idSubservice]);
+        } else {
+            // Preserve the existing subserviceID if parameter is not available
+            $resourceId = $request->get($this->crud->model->getKeyName());
+            $existingResource = $this->crud->model->find($resourceId);
+            if ($existingResource) {
+                $request->merge(['subserviceID' => $existingResource->subserviceID]);
+            }
+        }
+
         // update the row in the db
-        $request->merge(['subserviceID' => \Route::current()->parameter('id_subservice')]);
         $item = $this->crud->update(
             $request->get($this->crud->model->getKeyName()),
             $request->all()
@@ -128,13 +140,12 @@ class CRUDResourcesController extends CrudController
     {
         CRUD::setValidation(ResourcesRequest::class);
         CRUD::setFromDb(); // set fields from db columns.
-        CRUD::field('subserviceID')->remove();
         CRUD::field('namespace')->remove();
         CRUD::field('name')->remove();
         CRUD::field('type')->remove();
         CRUD::field('status')->remove();
         CRUD::field('health_status')->remove();
-        CRUD::field('subserviceID')->remove();
+        CRUD::field('subserviceID')->type('hidden');
         CRUD::field('ready')->remove();
     }
 
@@ -173,7 +184,8 @@ class CRUDResourcesController extends CrudController
         return $this->crud->performSaveAction($item->getKey());
     }
 
-    public function getDescribe(Request $request)
+    // 
+    public function getPodDescribe(Request $request)
     {
         $resource = Resources::where('name', $request->name)->first();
 
@@ -184,7 +196,7 @@ class CRUDResourcesController extends CrudController
         );
     }
 
-    public function getLogs(Request $request)
+    public function getPodLogs(Request $request)
     {
         $resource = Resources::where('name', $request->name)->first();
         $podName = $request->podName;
@@ -260,17 +272,5 @@ class CRUDResourcesController extends CrudController
             'resourceName' => $name,
             'defaultTailLines' => 20 // Include default value for UI
         ]);
-    }
-
-    public function sleep()
-    {
-        exec('echo "hello world"');
-        return back();
-    }
-
-    public function activate()
-    {
-        exec('echo "hello world"');
-        return back();
     }
 }

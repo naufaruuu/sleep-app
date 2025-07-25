@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use SebastianBergmann\CodeCoverage\Report\Xml\Project;
 
 class Helper
+
 {
     static function refreshAll()
     {
@@ -91,7 +92,8 @@ class Helper
                     $uniqueProjects[$project] = [
                         'name' => $project,
                         'description' => "",
-                        'isActive' => 0
+                        'isFixed' => 0,
+                        'isDuration' => 0,
                     ];
                     Log::info("Inserting new project: $project");
                 }

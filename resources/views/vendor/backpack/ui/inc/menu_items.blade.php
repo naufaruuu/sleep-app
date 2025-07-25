@@ -10,3 +10,8 @@
 <x-backpack::menu-item title="Excludes" icon="la la-ban" :link="backpack_url('exclude')" />
 
 <x-backpack::menu-item title="Application lists" icon="la la-list-alt" :link="backpack_url('application-lists')" />
+
+{{-- User management for superadmins --}}
+@if(backpack_user() && backpack_user()->role === 'superadmin')
+    <x-backpack::menu-item title="User Management" icon="la la-users" :link="backpack_url('user')" />
+@endif

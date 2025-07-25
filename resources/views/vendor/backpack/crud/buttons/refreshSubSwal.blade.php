@@ -1,5 +1,5 @@
 <a onclick="noty_refreshSub(event, {{ $entry }})" class="btn btn-sm btn-link" href="#" data-toggle="tooltip"
-    title="Refresh Subservice"><i class="la la-refresh"></i> Refresh</a>
+    title="Refresh Subservice"><i class="la la-refresh"></i> Hard Refresh</a>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

@@ -1,5 +1,5 @@
 <a onclick="noty_refreshPro(event, {{ $entry }})" class="btn btn-sm btn-link" href="#" data-toggle="tooltip"
-    title="Refresh Project"><i class="la la-refresh"></i> Refresh</a>
+    title="Refresh Project"><i class="la la-refresh"></i> H.Refresh</a>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

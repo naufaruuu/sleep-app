@@ -9,34 +9,34 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use SebastianBergmann\CodeCoverage\Report\Xml\Project;
 
-class auto_sleep extends Command
+class duration_sleep extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'auto_sleep';
+    protected $signature = 'duration_sleep';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Auto Sleep All Pods Every 1 Hour';
+    protected $description = 'Auto Sleep All Duration-Based Applications Every 1 Hour';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        Log::info('Starting auto_sleep process');
-        $projects = Projects::where('isActive', 1)->get();
-        Log::info('Found ' . $projects->count() . ' active projects');
+        Log::info('Starting duration_sleep process');
+        $projects = Projects::where('isDuration', 1)->where('isFixed', 0)->get();
+        Log::info('Found ' . $projects->count() . ' projects with duration_sleep');
 
         // Exit early if no active projects found
         if ($projects->count() == 0) {
-            Log::info('No active projects found. Exiting auto_sleep process.');
+            Log::info('No active projects found. Exiting duration_sleep process.');
             return;
         }
 
@@ -114,6 +114,6 @@ class auto_sleep extends Command
             Log::info("No subservices to put to sleep");
         }
 
-        Log::info('Completed auto_sleep process');
+        Log::info('Completed duration_sleep process');
     }
 }

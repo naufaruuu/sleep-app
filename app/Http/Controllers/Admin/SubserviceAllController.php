@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Subservice;
 use App\Models\Projects;
+use App\Http\Requests\SubserviceRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 class SubserviceAllController extends CrudController
 {
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
 
     public function setup()
@@ -63,6 +65,20 @@ class SubserviceAllController extends CrudController
             ->orderBy('projects.name', 'asc')
             ->orderBy('subservices.name', 'asc')
             ->select('subservices.*');
+    }
+
+    protected function setupUpdateOperation()
+    {
+        $this->setupCreateOperation();
+    }
+
+    protected function setupCreateOperation()
+    {
+        CRUD::setValidation(SubserviceRequest::class);
+        CRUD::setFromDb();
+        CRUD::field('projectID')->remove();
+        CRUD::field('name')->remove();
+        CRUD::field('active_left')->remove();
     }
 
     public function search()

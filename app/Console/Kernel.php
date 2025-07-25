@@ -12,7 +12,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('auto_sleep')->hourly();
+        $schedule->command('duration_sleep')->hourly();
+
+        // Get times from environment variables with defaults if not set
+        $sleepTime = env('FIXED_SLEEP_TIME', '22:00');
+        $activateTime = env('FIXED_ACTIVATE_TIME', '08:00');
+        
+        // Run at sleep time (default 11:00 PM) UTC+7
+        $schedule->command('fixed_sleep')
+            ->timezone('Asia/Bangkok')
+            ->dailyAt($sleepTime);
+        
+        // Run at activate time (default 8:00 AM) UTC+7
+        $schedule->command('fixed_sleep')
+            ->timezone('Asia/Bangkok')
+            ->dailyAt($activateTime);
     }
 
     /**

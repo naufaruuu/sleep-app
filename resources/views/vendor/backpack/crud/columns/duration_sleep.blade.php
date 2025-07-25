@@ -7,13 +7,13 @@
     @endphp
 
     <label class="switch">
-        <input data-id="{{ $key }}" id="toggle-class-{{ $key }}" onchange="runAjax(this)" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="On" data-off="Off" {{ $entry->isActive ? 'checked' : '' }}>
+        <input data-id="{{ $key }}" id="toggle-class-{{ $key }}" onchange="duration_sleep(this)" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="On" data-off="Off" {{ $entry->isDuration ? 'checked' : '' }}>
         <span class="slider round"></span>
     </label>
 
 
 <script>
-  function runAjax(val) {
+  function duration_sleep(val) {
       var status = val.checked == true ? 1 : 0;
       var id = val.id;
 
@@ -23,7 +23,7 @@
       $.ajax({
           type: "POST",
           dataType: "json",
-          url: "/admin/project/active",
+          url: "/admin/project/duration_sleep",
           data: {'status': status ? "1" : "0", 'id': id},
           success: function(data) {
             var notification_type;

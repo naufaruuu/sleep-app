@@ -17,7 +17,8 @@ base:build-base-php-thesis:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}, \"https://index.docker.io/v1/\":{\"auth\":\"SECRETT\"}}}" > /kaniko/.docker/config.json
+
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}, \"https://index.docker.io/v1/\":{\"auth\":\"SECRET\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/.build/base_php_8.1/Dockerfile --destination $CI_REGISTRY_IMAGE/base-php-8.1/thesis:$CI_COMMIT_TAG --destination $CI_REGISTRY_IMAGE/base-php-8.1/thesis:$CI_COMMIT_SHORT_SHA
   only:
     - master
@@ -54,8 +55,8 @@ build:build-php-thesis:
     - .cache-composer-cache/
     - vendor/
   script:
-    
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}, \"https://index.docker.io/v1/\":{\"auth\":\"SECRET=\"}}}" > /kaniko/.docker/config.json
+    # - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}, \"https://index.docker.io/v1/\":{\"auth\":\"SECRET\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/.build/sleep_app_php/Dockerfile --destination $CI_REGISTRY_IMAGE/thesis:$CI_COMMIT_TAG --destination $CI_REGISTRY_IMAGE/thesis:$CI_COMMIT_SHORT_SHA
   only:
     - master
